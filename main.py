@@ -1,17 +1,37 @@
 from tkinter import *
 from color_list import colors_l
+import random
+from PIL import ImageGrab
 import math
+import time
 
 
 class Paint(Frame):
     def __init__(self, parent):
+        self.SIZE = 800
         Frame.__init__(self, parent)
         self.parent = parent
-        self.color = 'black'  # кисть по умолчанию
+        self.color = 'red'  # кисть по умолчанию
         self.brush_size = 2
         self.brush_type = 0
         self.setUI()
         self.before_list = []
+
+    def _canvas(self):
+        x = self.canv.winfo_rootx()+self.canv.winfo_x()
+        y = self.canv.winfo_rooty()+self.canv.winfo_y()
+        x1 = x+self.canv.winfo_width()
+        y1 = y+self.canv.winfo_height()
+        box = (x, y, x1, y1)
+        print('box = ', box)
+        return box
+
+    def save_canvas(self):
+        canvas = self._canvas()
+        time.sleep(1.0)
+        self.grabcanvas = ImageGrab.grab(bbox=canvas)
+        self.grabcanvas.save(
+            'saves\\'+'cvs' + str(random.randint(10000, 30000))+'.png')
         # _______________________________________Drawing_Functions()________________________________________
 
     def set_color(self, new_color):
@@ -33,98 +53,138 @@ class Paint(Frame):
     def select_brush(self):
         window = Toplevel(self)
         window.title('Brushes')
+        window.attributes("-topmost", True)
         b_frame = Frame(window)
         b_frame.pack()
         b_1 = Button(b_frame, bg='LightCyan3', fg='white', bd=7, relief='ridge',
                      text='deflaut', width=15, command=lambda: self.brush_type_select(0))
+        canv1 = Canvas(b_frame, width=50, height=50, bg='white')
+
         b_2 = Button(b_frame, bg='LightCyan3', fg='white', bd=7, relief='ridge',
                      text='color+black', width=15, command=lambda: self.brush_type_select(1))
+        canv2 = Canvas(b_frame, width=50, height=50, bg='white')
+
         b_3 = Button(b_frame, bg='LightCyan3', fg='white', bd=7, relief='ridge',
                      text='with_outline', width=15, command=lambda: self.brush_type_select(2))
+        canv3 = Canvas(b_frame, width=50, height=50, bg='white')
         b_4 = Button(b_frame, bg='LightCyan3', fg='white', bd=7, relief='ridge',
                      text='rectangle', width=15, command=lambda: self.brush_type_select(3))
+        canv4 = Canvas(b_frame, width=50, height=50, bg='white')
         b_5 = Button(b_frame, bg='LightCyan3', fg='white', bd=7, relief='ridge',
                      text='oval', width=15, command=lambda: self.brush_type_select(4))
-        b_1.pack()
-        b_2.pack()
-        b_3.pack()
-        b_4.pack()
-        b_5.pack()
+        canv5 = Canvas(b_frame, width=50, height=50, bg='white')
+
+        b_1.grid(row=0, column=0)
+        canv1.grid(row=0, column=1)
+        b_2.grid(row=1, column=0)
+        canv2.grid(row=1, column=1)
+        b_3.grid(row=2, column=0)
+        canv3.grid(row=2, column=1)
+        b_4.grid(row=3, column=0)
+        canv4.grid(row=3, column=1)
+        b_5.grid(row=4, column=0)
+        canv5.grid(row=4, column=1)
+        canv1.create_oval(5, 5, 45, 45, fill=self.color, outline=self.color)
+        canv2.create_oval(5, 5, 45, 45, fill=self.color, outline=self.color)
+        canv2.create_oval(8, 8, 42, 42, fill='black', outline=self.color)
+        canv3.create_oval(5, 5, 45, 45, fill=self.color, outline='black')
+        canv4.create_rectangle(
+            5, 5, 45, 45, fill=self.color, outline=self.color)
+        canv5.create_oval(5, 2, 45, 25, fill=self.color, outline=self.color)
 
     def position(self, event):
         self.movecheked = [0, 0]
         self.posits = (event.x, event.y)
-        
+
     def before_clean(self, event):
         self.before_list = []
-        
+
     def before(self, do, x, y):
-        if do:
-            self.before_list.append((x, y))
-        else:
-            c = self.color
-            self.before_list.insert(0, (self.before_list[0][0]-5,self.before_list[0][1]-5))
-            self.before_list.insert(0, (self.before_list[0][0]+5,self.before_list[0][1]+5))
-            self.before_list.append((self.before_list[-1][0]-5,self.before_list[-1][1]-5))
-            self.before_list.append((self.before_list[-1][0]+5,self.before_list[-1][1]+5))
-            for i in range(len(self.before_list)-1):
-                self.draw(0,0,aitoevent=(self.before_list[i]))
-                self.color = 'white'
-            self.color = c
-            self.before_list = []
-        
+        try:
+            if do:
+                self.before_list.append((x, y))
+            else:
+                c = self.color
+                self.before_list.insert(
+                    0, (self.before_list[0][0]-5, self.before_list[0][1]-5))
+                self.before_list.insert(
+                    0, (self.before_list[0][0]+5, self.before_list[0][1]+5))
+                self.before_list.append(
+                    (self.before_list[-1][0]-5, self.before_list[-1][1]-5))
+                self.before_list.append(
+                    (self.before_list[-1][0]+5, self.before_list[-1][1]+5))
+                for i in range(len(self.before_list)-1):
+                    self.draw(0, 0, aitoevent=(self.before_list[i]))
+                    self.color = 'white'
+                self.color = c
+                self.before_list = []
+        except:
+            print('no to delite')
+
     def draw(self, event, typeofline, aitoevent=0):
+        issm = self.issimmetric.get()
         if aitoevent != 0:
             x = aitoevent[0]
             y = aitoevent[1]
         else:
             x = event.x
             y = event.y
-        
-        if typeofline:
-            self.movecheked[0] += abs(self.posits[0] - x)
-            self.movecheked[1] += abs(self.posits[1] - y)
-            if self.movecheked[0] > self.movecheked[1]:
-                y = self.posits[1]
-            else:
-                x = self.posits[0]
-                      
-        self.before(1, x, y)
-        if self.brush_type == 0:
-            self.canv.create_oval(x - self.brush_size,
-                                  y - self.brush_size,
-                                  x + self.brush_size,
-                                  y + self.brush_size,
-                                  fill=self.color, outline=self.color)
-        elif self.brush_type == 1:
-            self.canv.create_oval(x - self.brush_size,
-                                  y - self.brush_size,
-                                  x + self.brush_size,
-                                  y + self.brush_size,
-                                  fill=self.color, outline=self.color)
-            self.canv.create_oval(x - self.brush_size + 2,
-                                  y - self.brush_size + 2,
-                                  x + self.brush_size - 2,
-                                  y + self.brush_size - 2,
-                                  fill='black', outline=self.color)
-        elif self.brush_type == 2:
-            self.canv.create_oval(x - self.brush_size,
-                                  y - self.brush_size,
-                                  x + self.brush_size,
-                                  y + self.brush_size,
-                                  fill=self.color, outline='black')
-        elif self.brush_type == 3:
-            self.canv.create_rectangle(x - self.brush_size,
-                                       y - self.brush_size,
-                                       x + self.brush_size,
-                                       y + self.brush_size,
-                                       fill=self.color, outline=self.color)
-        elif self.brush_type == 4:
-            self.canv.create_oval(x - self.brush_size//2 - self.brush_size,
-                                  y - self.brush_size,
-                                  x + self.brush_size//2 + self.brush_size,
-                                  y + self.brush_size,
-                                  fill=self.color, outline=self.color)
+
+        if not issm:
+            if typeofline:
+                self.movecheked[0] += abs(self.posits[0] - x)
+                self.movecheked[1] += abs(self.posits[1] - y)
+                if self.movecheked[0] > self.movecheked[1]:
+                    y = self.posits[1]
+                else:
+                    x = self.posits[0]
+            self.before(1, x, y)
+
+        def maindraw(sx=0, sy=0):
+            xx = abs(sx - x)
+            yy = abs(sy - y)
+            if self.brush_type == 0:
+                self.canv.create_oval(xx - self.brush_size,
+                                      yy - self.brush_size,
+                                      xx + self.brush_size,
+                                      yy + self.brush_size,
+                                      fill=self.color, outline=self.color)
+            elif self.brush_type == 1:
+                self.canv.create_oval(xx - self.brush_size,
+                                      yy - self.brush_size,
+                                      xx + self.brush_size,
+                                      yy + self.brush_size,
+                                      fill=self.color, outline=self.color)
+                self.canv.create_oval(xx - self.brush_size + 2,
+                                      yy - self.brush_size + 2,
+                                      xx + self.brush_size - 2,
+                                      yy + self.brush_size - 2,
+                                      fill='black', outline=self.color)
+            elif self.brush_type == 2:
+                self.canv.create_oval(xx - self.brush_size,
+                                      yy - self.brush_size,
+                                      xx + self.brush_size,
+                                      yy + self.brush_size,
+                                      fill=self.color, outline='black')
+            elif self.brush_type == 3:
+                self.canv.create_rectangle(xx - self.brush_size,
+                                           yy - self.brush_size,
+                                           xx + self.brush_size,
+                                           yy + self.brush_size,
+                                           fill=self.color, outline=self.color)
+            elif self.brush_type == 4:
+                self.canv.create_oval(xx - self.brush_size//2 - self.brush_size,
+                                      yy - self.brush_size,
+                                      xx + self.brush_size//2 + self.brush_size,
+                                      yy + self.brush_size,
+                                      fill=self.color, outline=self.color)
+        if issm:
+            maindraw(self.SIZE, 0)
+            maindraw(0, self.SIZE)
+            maindraw(self.SIZE, self.SIZE)
+            maindraw()
+        else:
+            maindraw()
 
     def select_color(self):
         def release(event):
@@ -133,14 +193,15 @@ class Paint(Frame):
         COLORS = colors_l()
         window = Toplevel(self)
         window.title('Colors')
+        window.attributes("-topmost", True)
         enter_frame = Frame(window)
         enter_frame.pack()
         r = 0
         c = 0
         for i in range(len(COLORS)):
-            b = Button(enter_frame, bg=COLORS[i], width=5)
+            b = Button(enter_frame, bg=COLORS[i], width=3)
             b.bind('<Button-1>', release)
-            if c <= 11:
+            if c <= 15:
                 b.grid(row=r, column=c)
                 c += 1
             else:
@@ -154,6 +215,16 @@ class Paint(Frame):
         self.grid(row=0, column=0)
         self.parent["bg"] = "gray72"
         # ------------------------------------------------
+        main_menu = Menu(self.parent)
+        self.parent.configure(menu=main_menu)
+        item = Menu(main_menu, tearoff=0)
+        main_menu.add_cascade(label='file', menu=item)
+        item.add_command(label='Save(Canvas)',
+                         command=lambda: self.save_canvas())
+        item.add_command(label='clear_all',
+                         command=lambda: self.canv.delete("all"))
+
+        # ------------------------------------------------
         # _DRAWING
         self.brush_frame = Frame(self.parent)
         self.brush_frame.grid(row=0, column=0)
@@ -162,16 +233,18 @@ class Paint(Frame):
         # ------------------------------------------------
         # _Canvas
         self.canvas_frame = Frame(self.parent)
-        self.canvas_frame.grid(row=1, column=0)
+        self.canvas_frame.grid(row=3, column=0)
 
-        self.canv = Canvas(self.canvas_frame, width=1200,
-                           height=800, bg='white')
+        self.canv = Canvas(self.canvas_frame, width=self.SIZE,
+                           height=self.SIZE, bg='white')
         self.canv.pack()
         self.canv.bind("<B1-Motion>", lambda event: self.draw(event, False))
         self.canv.bind('<Button-3>', self.position)
         self.canv.bind('<Button-1>', self.before_clean)
         self.canv.bind("<B3-Motion>", lambda event: self.draw(event, True))
-        self.canv.bind("<Button-2>", lambda event: self.before(0,0,0))
+
+        #self.canv.bind("<B2-Motion>", lambda event: self.simmetricdraw(event))
+        self.parent.bind("<z>", lambda event: self.before(0, 0, 0))
         # ------------------------------------------------
         #       Colors
         red_btn = Button(self.brush_frame, bg='red', fg='white', bd=7, relief='ridge',
@@ -191,9 +264,9 @@ class Paint(Frame):
         white_btn.grid(row=0, column=5)
         #       about Colors
         self.label_current_color = Label(
-            self.brush_frame, text='black', bg='LightCyan3', width=15, bd=7)
+            self.brush_frame, text='red', bg='LightCyan3', width=15, bd=7)
         self.label_current_color2 = Label(
-            self.brush_frame, bg='black', width=5, bd=7)
+            self.brush_frame, bg='red', width=5, bd=7)
         self.label_current_size = Label(
             self.brush_frame, text='2', bg='LightCyan3', width=5, bd=7)
         self.label_current_color.grid(row=0, column=8)
@@ -233,6 +306,11 @@ class Paint(Frame):
         brushes_btn = Button(self.brush_frame, bg='LightCyan3', fg='black', bd=7,
                              relief='ridge', text='BRUSHES', width=10, command=lambda: self.select_brush())
         brushes_btn.grid(row=1, column=8)
+        # simmetrion
+        self.issimmetric = IntVar()
+        self.checkbutton = Checkbutton(
+            text="Симметрия", variable=self.issimmetric)
+        self.checkbutton.grid(row=2, column=0)
 
 
 def main():
