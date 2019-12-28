@@ -8,22 +8,23 @@ import time
 
 class Paint(Frame):
     def __init__(self, parent):
-        self.SIZE = 800
+        self.SIZE = 800  # size of canvas
         Frame.__init__(self, parent)
-        self.parent = parent
-        self.color = 'red'  # кисть по умолчанию
+        self.parent = parent  # creation parent frame
+        self.color = 'red'  # deflaut brush
         self.brush_size = 2
         self.brush_type = 0
-        self.setUI()
-        self.before_list = []
+        self.setUI()  # creating an interface
+        self.back_list = []  # for memorizing the last line
 
-    def _canvas(self):
+    # Saving function
+    def _canvas(self):  # find out the cutting area
         x = self.canv.winfo_rootx()+self.canv.winfo_x()
         y = self.canv.winfo_rooty()+self.canv.winfo_y()
         x1 = x+self.canv.winfo_width()
         y1 = y+self.canv.winfo_height()
         box = (x, y, x1, y1)
-        print('box = ', box)
+        print('box = ', box, end='')
         return box
 
     def save_canvas(self):
@@ -32,8 +33,9 @@ class Paint(Frame):
         self.grabcanvas = ImageGrab.grab(bbox=canvas)
         self.grabcanvas.save(
             'saves\\'+'cvs' + str(random.randint(10000, 30000))+'.png')
-        # _______________________________________Drawing_Functions()________________________________________
+        print('save OK')
 
+    # _______________________________________Drawing_Functions()________________________________________
     def set_color(self, new_color):
         self.color = new_color
         self.label_current_color['text'] = new_color
@@ -73,7 +75,6 @@ class Paint(Frame):
         b_5 = Button(b_frame, bg='LightCyan3', fg='white', bd=7, relief='ridge',
                      text='oval', width=15, command=lambda: self.brush_type_select(4))
         canv5 = Canvas(b_frame, width=50, height=50, bg='white')
-
         b_1.grid(row=0, column=0)
         canv1.grid(row=0, column=1)
         b_2.grid(row=1, column=0)
@@ -92,32 +93,55 @@ class Paint(Frame):
             5, 5, 45, 45, fill=self.color, outline=self.color)
         canv5.create_oval(5, 2, 45, 25, fill=self.color, outline=self.color)
 
+    def select_color(self):
+        def release(event):
+            self.set_color(event.widget['bg'])
+            self.label_current_color2['bg'] = event.widget['bg']
+        COLORS = colors_l()
+        window = Toplevel(self)
+        window.title('Colors')
+        window.attributes("-topmost", True)
+        enter_frame = Frame(window)
+        enter_frame.pack()
+        r = 0
+        c = 0
+        for i in range(len(COLORS)):
+            b = Button(enter_frame, bg=COLORS[i], width=3)
+            b.bind('<Button-1>', release)
+            if c <= 15:
+                b.grid(row=r, column=c)
+                c += 1
+            else:
+                r += 1
+                c = 0
+                b.grid(row=r, column=c)
+
     def position(self, event):
         self.movecheked = [0, 0]
         self.posits = (event.x, event.y)
 
-    def before_clean(self, event):
-        self.before_list = []
+    def back_clean(self, event):
+        self.back_list = []
 
-    def before(self, do, x, y):
+    def back(self, do, x, y):
         try:
             if do:
-                self.before_list.append((x, y))
+                self.back_list.append((x, y))
             else:
                 c = self.color
-                self.before_list.insert(
-                    0, (self.before_list[0][0]-5, self.before_list[0][1]-5))
-                self.before_list.insert(
-                    0, (self.before_list[0][0]+5, self.before_list[0][1]+5))
-                self.before_list.append(
-                    (self.before_list[-1][0]-5, self.before_list[-1][1]-5))
-                self.before_list.append(
-                    (self.before_list[-1][0]+5, self.before_list[-1][1]+5))
-                for i in range(len(self.before_list)-1):
-                    self.draw(0, 0, aitoevent=(self.before_list[i]))
+                self.back_list.insert(
+                    0, (self.back_list[0][0]-5, self.back_list[0][1]-5))
+                self.back_list.insert(
+                    0, (self.back_list[0][0]+5, self.back_list[0][1]+5))
+                self.back_list.append(
+                    (self.back_list[-1][0]-5, self.back_list[-1][1]-5))
+                self.back_list.append(
+                    (self.back_list[-1][0]+5, self.back_list[-1][1]+5))
+                for i in range(len(self.back_list)-1):
+                    self.draw(0, 0, aitoevent=(self.back_list[i]))
                     self.color = 'white'
                 self.color = c
-                self.before_list = []
+                self.back_list = []
         except:
             print('no to delite')
 
@@ -129,7 +153,6 @@ class Paint(Frame):
         else:
             x = event.x
             y = event.y
-
         if not issm:
             if typeofline:
                 self.movecheked[0] += abs(self.posits[0] - x)
@@ -138,7 +161,7 @@ class Paint(Frame):
                     y = self.posits[1]
                 else:
                     x = self.posits[0]
-            self.before(1, x, y)
+            self.back(1, x, y)
 
         def maindraw(sx=0, sy=0):
             xx = abs(sx - x)
@@ -186,28 +209,6 @@ class Paint(Frame):
         else:
             maindraw()
 
-    def select_color(self):
-        def release(event):
-            self.set_color(event.widget['bg'])
-            self.label_current_color2['bg'] = event.widget['bg']
-        COLORS = colors_l()
-        window = Toplevel(self)
-        window.title('Colors')
-        window.attributes("-topmost", True)
-        enter_frame = Frame(window)
-        enter_frame.pack()
-        r = 0
-        c = 0
-        for i in range(len(COLORS)):
-            b = Button(enter_frame, bg=COLORS[i], width=3)
-            b.bind('<Button-1>', release)
-            if c <= 15:
-                b.grid(row=r, column=c)
-                c += 1
-            else:
-                r += 1
-                c = 0
-                b.grid(row=r, column=c)
     # __________________;
 
     def setUI(self):
@@ -215,6 +216,7 @@ class Paint(Frame):
         self.grid(row=0, column=0)
         self.parent["bg"] = "gray72"
         # ------------------------------------------------
+        #_Menu
         main_menu = Menu(self.parent)
         self.parent.configure(menu=main_menu)
         item = Menu(main_menu, tearoff=0)
@@ -223,15 +225,10 @@ class Paint(Frame):
                          command=lambda: self.save_canvas())
         item.add_command(label='clear_all',
                          command=lambda: self.canv.delete("all"))
-
-        # ------------------------------------------------
-        # _DRAWING
-        self.brush_frame = Frame(self.parent)
-        self.brush_frame.grid(row=0, column=0)
-        color_lab = Label(self.brush_frame, text="Color: ")
-        color_lab.grid(row=0, column=0, padx=6)
         # ------------------------------------------------
         # _Canvas
+        self.brush_frame = Frame(self.parent)
+        self.brush_frame.grid(row=0, column=0)
         self.canvas_frame = Frame(self.parent)
         self.canvas_frame.grid(row=3, column=0)
 
@@ -240,13 +237,13 @@ class Paint(Frame):
         self.canv.pack()
         self.canv.bind("<B1-Motion>", lambda event: self.draw(event, False))
         self.canv.bind('<Button-3>', self.position)
-        self.canv.bind('<Button-1>', self.before_clean)
+        self.canv.bind('<Button-1>', self.back_clean)
         self.canv.bind("<B3-Motion>", lambda event: self.draw(event, True))
-
-        #self.canv.bind("<B2-Motion>", lambda event: self.simmetricdraw(event))
-        self.parent.bind("<z>", lambda event: self.before(0, 0, 0))
+        self.parent.bind("<z>", lambda event: self.back(0, 0, 0))
         # ------------------------------------------------
-        #       Colors
+        # _Colors
+        color_lab = Label(self.brush_frame, text="Color: ")
+        color_lab.grid(row=0, column=0, padx=6)
         red_btn = Button(self.brush_frame, bg='red', fg='white', bd=7, relief='ridge',
                          text="Red", width=10, command=lambda: self.set_color("red"))
         green_btn = Button(self.brush_frame, bg='green', fg='white', bd=7, relief='ridge',
