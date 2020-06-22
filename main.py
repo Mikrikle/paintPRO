@@ -146,7 +146,7 @@ class Paint(Frame):
             print('no to delite')
 
     def draw(self, event, typeofline, aitoevent=0):
-        issm = self.issimmetric.get()
+        issm = self.issymmetry.get()
         if aitoevent != 0:
             x = aitoevent[0]
             y = aitoevent[1]
@@ -304,9 +304,9 @@ class Paint(Frame):
                              relief='ridge', text='BRUSHES', width=10, command=lambda: self.select_brush())
         brushes_btn.grid(row=1, column=8)
         # simmetrion
-        self.issimmetric = IntVar()
+        self.issymmetry = IntVar()
         self.checkbutton = Checkbutton(
-            text="Симметрия", variable=self.issimmetric)
+            text="Симметрия", variable=self.issymmetry)
         self.checkbutton.grid(row=2, column=0)
 
 
