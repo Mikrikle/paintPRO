@@ -4,8 +4,10 @@ simple tkinter paint
 need to install:
 python Pillow
 
-1. You can draw with all tkinter base colors
-2. You can change brush
-3. 4 lines symetry mod 
-4. use Ctrl+Z to delete last line
-5. you can save canvas with file/save
+* draw with all tkinter colors
+* five bushes
+* modyfy brush size with buttins + \ -
+* easy clear all canvas with file/clear_all
+* 4 lines symetry mod 
+* use Ctrl+Z to delete last line
+* you can save canvas with file/save
