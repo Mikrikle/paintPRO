@@ -2,7 +2,7 @@
 simple tkinter paint
 
 need to install:
-python Pillow
+python Pillow (for save canvas)
 
 * draw with all tkinter colors
 * five bushes
