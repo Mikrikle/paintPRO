@@ -5,7 +5,7 @@ need to install:
 python Pillow (for save canvas)
 
 * draw with all tkinter colors
-* five bushes
+* five brushes
 * modyfy brush size with buttins + \ -
 * easy clear all canvas with file/clear_all
 * 4 lines symetry mod 
