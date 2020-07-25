@@ -143,7 +143,7 @@ class Paint(Frame):
                 self.color = c
                 self.back_list = []
         except:
-            print('no to delite')
+            print('no to delete')
 
     def draw(self, event, typeofline, aitoevent=0):
         issm = self.issymmetry.get()
@@ -216,7 +216,7 @@ class Paint(Frame):
         self.grid(row=0, column=0)
         self.parent["bg"] = "gray72"
         # ------------------------------------------------
-        #_Menu
+        # _Menu
         main_menu = Menu(self.parent)
         self.parent.configure(menu=main_menu)
         item = Menu(main_menu, tearoff=0)
@@ -253,7 +253,7 @@ class Paint(Frame):
         black_btn = Button(self.brush_frame, bg='black', fg='white', bd=7, relief='ridge',
                            text="Black", width=10, command=lambda: self.set_color("black"))
         white_btn = Button(self.brush_frame, bg='white', fg='black', bd=7, relief='ridge',
-                           text="Erather", width=10, command=lambda: self.set_color("white"))
+                           text="White", width=10, command=lambda: self.set_color("white"))
         red_btn.grid(row=0, column=1)
         green_btn.grid(row=0, column=2)
         blue_btn.grid(row=0, column=3)
@@ -306,7 +306,7 @@ class Paint(Frame):
         # simmetrion
         self.issymmetry = IntVar()
         self.checkbutton = Checkbutton(
-            text="Симметрия", variable=self.issymmetry)
+            text="symmetry", variable=self.issymmetry)
         self.checkbutton.grid(row=2, column=0)
 
 
